@@ -1,4 +1,4 @@
-package rock;
+package perlrocks;
 use strict;
 use warnings;
 
@@ -73,7 +73,7 @@ sub search {
 }
 
 ## It goes here when people says something like `use Foo;` or `use Foo-1.0;`
-sub rock::INC {
+sub perlrocks::INC {
     my ($self, $module_path) = @_;
     my $code = B::Hooks::Parser::get_linestr();
     my ($name, $version, $auth) = parse_use_line($code);
