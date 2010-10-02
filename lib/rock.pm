@@ -2,7 +2,6 @@ package rock;
 use strict;
 use warnings;
 
-use YAML;
 use File::Find ();
 use File::Spec ();
 use B::Hooks::Parser;
@@ -11,9 +10,10 @@ use B::Hooks::Parser;
 my $rock = bless {}, __PACKAGE__;
 
 sub rock_root() {
+    return $rock->{root} if $rock->{root};
     my @x = File::Spec->splitpath(__FILE__);
     pop @x;
-    return File::Spec->catpath(@x, 'rocks');
+    return $rock->{root} = File::Spec->catpath(@x, 'rocks');
 }
 
 sub parse_use_line($) {
@@ -80,13 +80,17 @@ sub rock::INC {
 
     my $path = $self->search($module_path, $name, $version, $auth);
 
-    open my $fh, $path or die "Can't open $path for input\n";
-    $INC{$module_path} = $path;
-    return $fh;
+    if ($path) {
+        open my $fh, $path or die "Can't open $path for input\n";
+        $INC{$module_path} = $path;
+        return $fh;
+    }
 }
 
 ## It goes here when people says `use rock;`
 sub import {
+    my ($class, $root) = @_;;
+    $rock->{root} = $root;
     unshift @INC, $rock;
 }
 
