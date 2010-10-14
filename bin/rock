@@ -1,0 +1,80 @@
+#!/usr/bin/env perl
+use strict;
+use 5.010;
+
+package App::rock;
+use File::Temp qw(tempfile tempdir);
+use File::Spec;
+use YAML;
+
+require CPAN;
+require perlrocks;
+
+sub install {
+    my $rock = shift;
+    $rock =~ /(?<name>\w+)(-(?<version>[0-9.]+\d))?/;
+
+    if ($+{name}) {
+        _install($rock, $+{name}, $+{version});
+    }
+    else {
+        die "Usage: rock install <name>";
+    }
+}
+
+sub _install {
+    my ($rock, $name, $version) = @_;
+
+    my $root = perlrocks->rock_root;
+    my $install_base;
+    $install_base = File::Spec->catdir($root, "$name-$version") if $version;
+
+    my $installed = __install_cpan_module_to_tempdir($rock);
+}
+
+sub __install_cpan_module_to_tempdir {
+    my $install_base  = tempdir();
+
+    require local::lib, $install_base;
+
+    local::lib->ensure_dir_structure_for($install_base);
+    my %env = local::lib->build_environment_vars_for($install_base, 0);
+
+    my ($fh, $filename) = tempfile(SUFFIX => '.sh');
+
+    # make fh un-buffered.
+    binmode($fh, ':unix');
+
+    print $fh "#!/bin/sh\n";
+    for (keys %env) {
+        print $fh "export $_=$env{$_}\n";
+    }
+    print $fh "cpanm $rock\n";
+
+    print "run $filename\n";
+
+    system("/bin/sh $filename");
+
+    return $install_base;
+}
+
+package main;
+my ($command, @args) = @ARGV;
+if (my $sub = App::rock->can($command)) {
+    $sub->(@args);
+}
+else {
+    die "ERROR: Unknown command $command";
+}
+
+__END__
+
+=head1 SYNOPSIS
+
+    # Install the latest version Mouse
+    rock install Mouse
+
+    # Install older version of Mouse
+    rock install http://backpan.perl.org/authors/id/G/GF/GFUJI/Mouse-0.74.tar.gz
+
+=head1 DESCRIPTION
