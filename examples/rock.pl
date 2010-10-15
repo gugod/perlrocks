@@ -18,6 +18,9 @@ use Foo;
 # use Foo-2.0;
 # use Foo-3.0;
 
+# Not quite working yet.
+# use Foo:<2.0>;
+
 ## Other regular 'uses' still search in site_lib
 use List::Util qw(first);
 use Data::Dumper;
