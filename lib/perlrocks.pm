@@ -20,7 +20,13 @@ sub parse_use_line($) {
     my ($code) = @_;
     my ($name, $version, $auth);
 
-    # XXX: auth part is not implemented yet.
+    # Perl6 syntax
+    my $ident = '[a-zA-Z0-9]+';
+    if ($code =~ /^use\s+( (?:${ident}::)* ${ident} ):(?:auth\(Any\):)?(?:ver)?<(v?[\d+ '.']*\d+)>;$/x) {
+        return ($1, $2, undef);
+    }
+
+    # Perl 5 syntax
     if ($code =~ /^use\s+(\S+?)-([0-9._]+).*;$/) {
         $name = $1;
         $version = $2;
