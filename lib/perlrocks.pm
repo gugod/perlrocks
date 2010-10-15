@@ -27,7 +27,7 @@ sub parse_use_line($) {
     }
 
     # Perl 5 syntax
-    if ($code =~ /^use\s+(\S+?)-([0-9._]+).*;$/) {
+    if ($code =~ /^use\s+(\S+?)(?:-|\s+)([0-9._]+).*;$/) {
         $name = $1;
         $version = $2;
     }
@@ -84,6 +84,8 @@ sub perlrocks::INC {
     my $code = B::Hooks::Parser::get_linestr();
     my ($name, $version, $auth) = parse_use_line($code);
 
+    return unless $name;
+
     my $path = $self->search($module_path, $name, $version, $auth);
 
     if ($path) {
@@ -96,8 +98,17 @@ sub perlrocks::INC {
 ## It goes here when people says `use rock;`
 sub import {
     my ($class, $root) = @_;;
+    $rock->{__parser_hook} = B::Hooks::Parser::setup();
+
     $rock->{root} = $root;
     unshift @INC, $rock;
+}
+
+sub unimport {
+    if ($rock->{__parser_hook}) {
+        B::Hooks::Parser::teardown($rock->{__parser_hook});
+        delete $rock->{__parser_hook};
+    }
 }
 
 1;
