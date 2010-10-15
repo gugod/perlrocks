@@ -4,6 +4,8 @@ package main;
 use strict;
 use 5.010;
 
+use lib '../lib';
+
 # Specify the rocks root dir.
 use perlrocks qw(my-own-rocks);
 
