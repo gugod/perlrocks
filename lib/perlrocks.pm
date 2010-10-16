@@ -1,7 +1,22 @@
 package perlrocks;
+# ABSTRACT: A different CPAN installation.
+
+=head1 NAME
+
+rock
+
+=head1 VERSION
+
+0.01
+
+=head1 SYNOPSIS
+
+=head1 METHODS
+
+=cut
+
 use strict;
 use warnings;
-
 use File::Find ();
 use File::Spec ();
 use B::Hooks::Parser;
