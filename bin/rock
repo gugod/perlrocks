@@ -1,6 +1,5 @@
 #!/usr/bin/env perl
-use strict;
-use 5.010;
+use 5.012;
 
 package App::rock;
 use File::Temp qw(tempfile tempdir);
@@ -22,6 +21,45 @@ sub install {
     }
 }
 
+# show a list of installed rocks with rocks
+sub show {
+    "Usage"
+}
+
+# delegate to cpsan serch.
+# Consistent result with search.cpan.org
+#
+#   # search on search.cpan.org
+#   rocks search -r Plack
+#   # Plack (0.9114, 0.9115, 0.9116)
+#
+#   # search installed ones
+#   rocks search Plack
+#   #= Plack (0.9114)
+#
+
+sub search {
+    my ($q) = @_;
+
+    require BackPAN::Index;
+
+    my $backpan = BackPAN::Index->new;
+    my $releases = $backpan->releases->search({ 'path' => { like => "%$q%" } });
+
+    my %dists;
+    while(my $r = $releases->next) {
+        push @{$dists{$r->dist}||=[]}, { version => $r->version, path => $r->path };
+    }
+
+    for (keys %dists) {
+        say "$_ (@{[ join ', ', map { $_->{version} } @{$dists{$_}}        ]})";
+    }
+}
+
+sub uninstall {
+    my ($name) = shift;
+}
+
 sub _install {
     my ($rock, $name, $version) = @_;
 
@@ -33,6 +71,8 @@ sub _install {
 }
 
 sub __install_cpan_module_to_tempdir {
+    my $rock = shift;
+
     my $install_base  = tempdir();
 
     require local::lib, $install_base;
@@ -69,6 +109,13 @@ else {
 
 __END__
 
+=head1 NAME
+
+
+=head1 VERSION
+
+0.01
+
 =head1 SYNOPSIS
 
     # Install the latest version Mouse
@@ -77,4 +124,28 @@ __END__
     # Install older version of Mouse
     rock install http://backpan.perl.org/authors/id/G/GF/GFUJI/Mouse-0.74.tar.gz
 
+    rock search Moose
+    #=> Moose (1.13, 1.14)
+
+    rock install Moose
+    1. Moose 1.13
+    2. Moose 1.14
+
+    rock install Moose-1.14
+
+
 =head1 DESCRIPTION
+
+=head1 SUUB COMMANDS
+
+=head2 install
+
+=head2 uninstall
+
+=head2 show
+
+=head2 search
+
+=head2 search
+
+=cut
