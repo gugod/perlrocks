@@ -1,116 +1,8 @@
 #!/usr/bin/env perl
-use 5.012;
-
-package App::rock;
-use File::Temp qw(tempfile tempdir);
-use File::Spec;
-use YAML;
-
-require CPAN;
-require perlrocks;
-
-sub install {
-    my $rock = shift;
-    $rock =~ /(?<name>\w+)(-(?<version>[0-9.]+\d))?/;
-
-    if ($+{name}) {
-        _install($rock, $+{name}, $+{version});
-    }
-    else {
-        die "Usage: rock install <name>";
-    }
-}
-
-# show a list of installed rocks with rocks
-sub show {
-    "Usage"
-}
-
-# delegate to cpsan serch.
-# Consistent result with search.cpan.org
-#
-#   # search on search.cpan.org
-#   rocks search -r Plack
-#   # Plack (0.9114, 0.9115, 0.9116)
-#
-#   # search installed ones
-#   rocks search Plack
-#   #= Plack (0.9114)
-#
-
-sub search {
-    my ($q) = @_;
-
-    require BackPAN::Index;
-
-    my $backpan = BackPAN::Index->new;
-    my $releases = $backpan->releases->search({ 'path' => { like => "%$q%" } });
-
-    my %dists;
-    while(my $r = $releases->next) {
-        push @{$dists{$r->dist}||=[]}, { version => $r->version, path => $r->path };
-    }
-
-    for (keys %dists) {
-        say "$_ (@{[ join ', ', map { $_->{version} } @{$dists{$_}}        ]})";
-    }
-}
-
-sub uninstall {
-    my ($name) = shift;
-}
-
-sub _install {
-    my ($rock, $name, $version) = @_;
-
-    my $root = perlrocks->rock_root;
-    my $install_base;
-    $install_base = File::Spec->catdir($root, "$name-$version") if $version;
-
-    my $installed = __install_cpan_module_to_tempdir($rock);
-}
-
-sub __install_cpan_module_to_tempdir {
-    my $rock = shift;
-
-    my $install_base  = tempdir();
-
-    require local::lib, $install_base;
-
-    local::lib->ensure_dir_structure_for($install_base);
-    my %env = local::lib->build_environment_vars_for($install_base, 0);
-
-    my ($fh, $filename) = tempfile(SUFFIX => '.sh');
-
-    # make fh un-buffered.
-    binmode($fh, ':unix');
-
-    print $fh "#!/bin/sh\n";
-    for (keys %env) {
-        print $fh "export $_=$env{$_}\n";
-    }
-    print $fh "cpanm $rock\n";
-
-    print "run $filename\n";
-
-    system("/bin/sh $filename");
-
-    return $install_base;
-}
-
-package main;
-my ($command, @args) = @ARGV;
-if (my $sub = App::rock->can($command)) {
-    $sub->(@args);
-}
-else {
-    die "ERROR: Unknown command $command";
-}
-
-__END__
 
 =head1 NAME
 
+rock
 
 =head1 VERSION
 
@@ -138,14 +30,150 @@ __END__
 
 =head1 SUUB COMMANDS
 
+=cut
+
+use 5.012;
+
+package App::rock;
+use File::Temp qw(tempfile tempdir);
+use File::Spec;
+use YAML;
+
+require CPAN;
+require perlrocks;
+
 =head2 install
+
+
+=cut
+
+sub install {
+    my $rock = shift;
+    $rock =~ /(?<name>\w+)(-(?<version>[0-9.]+\d))?/;
+
+    if ($+{name} && $+{version}) {
+        _install($rock, $+{name}, $+{version});
+    }
+    else {
+        die <<USAGE;
+
+Usage: rock install distname-version
+
+Example:
+
+    rock install Mouse-0.77
+    rock install Moose-1.10
+
+USAGE
+    }
+}
+
+# show a list of installed rocks with rocks
+sub show {
+    "Usage"
+}
 
 =head2 uninstall
 
+=cut
+
+sub uninstall {
+    ...
+}
+
 =head2 show
 
-=head2 search
+=cut
+
+sub show {
+    ...
+}
 
 =head2 search
 
 =cut
+
+# delegate to cpsan serch.
+# Consistent result with search.cpan.org
+#
+#   # search on search.cpan.org
+#   rocks search -r Plack
+#   # Plack (0.9114, 0.9115, 0.9116)
+#
+#   # search installed ones
+#   rocks search Plack
+#   #= Plack (0.9114)
+#
+
+sub search {
+    my ($q) = @_;
+    require BackPAN::Index;
+
+    my $backpan = BackPAN::Index->new;
+    my $releases = $backpan->releases->search({ 'path' => { like => "%$q%" } });
+
+    my %dists;
+    while(my $r = $releases->next) {
+        push @{$dists{$r->dist}||=[]}, { version => $r->version, path => $r->path };
+    }
+
+    for (keys %dists) {
+        say "$_ (@{[ join ', ', map { $_->[0] } sort { $b->[1] <=> $a->[1] } map { [$_->{version}, version->parse($_->{version}||0)] } @{$dists{$_}}        ]})";
+    }
+}
+
+sub _backpan_dist_uri {
+    require BackPAN::Index;
+    my ($name, $version) = @_;
+
+    my $backpan = BackPAN::Index->new;
+    my $release = $backpan->release($name, $version);
+
+    return 'http://backpan.perl.org/' . $release->path;
+}
+
+sub _install {
+    my ($rock, $name, $version) = @_;
+
+    my $root = perlrocks->rock_root;
+
+    my $install_base = File::Spec->catdir($root, "$name-$version");
+
+    __install_cpan_dist_to_dir(_backpan_dist_uri($name, $version), $install_base);
+}
+
+sub __install_cpan_dist_to_dir {
+    my $rock = shift;
+    my $install_base  = shift;
+
+    require local::lib, $install_base;
+
+    local::lib->ensure_dir_structure_for($install_base);
+    my %env = local::lib->build_environment_vars_for($install_base, 0);
+
+    my ($fh, $filename) = tempfile(SUFFIX => '.sh');
+
+    # make fh un-buffered.
+    binmode($fh, ':unix');
+
+    print $fh "#!/bin/sh\n";
+    for (keys %env) {
+        print $fh "export $_=$env{$_}\n";
+    }
+    print $fh "cpanm -nq --reinstall $rock\n";
+    print "run $filename\n";
+    system("/bin/sh", $filename);
+    return $install_base;
+}
+
+package main;
+
+my ($command, @args) = @ARGV;
+
+if (my $sub = App::rock->can($command)) {
+    $sub->(@args);
+}
+else {
+    die "ERROR: Unknown command $command";
+}
+
