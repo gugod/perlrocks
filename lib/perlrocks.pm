@@ -1,15 +1,38 @@
 package perlrocks;
-# ABSTRACT: A different CPAN installation.
+# ABSTRACT: CPAN installation management like rubygems.
 
 =head1 NAME
 
-rock
+perlrocks
 
 =head1 VERSION
 
 0.01
 
 =head1 SYNOPSIS
+
+A command 'rock' is installed:
+
+    > rock search Moose
+
+    # Install multiple vesion of Moose
+    > rock install Moose-1.14
+    > rock install Moose-1.13
+
+    # Uninstall is possible
+    > rock uninstall Moose-1.14
+
+
+perlrocks does not work transparently, you have to modify your program a little bit.
+
+    # Have to say this in the very beginning of your program.
+    use perlrocks;
+
+    # Using the latest version of intsalled Moose
+    use Moose;
+
+    # Using a specific version of Moose.
+    use Moose-1.13;
 
 =head1 METHODS
 
