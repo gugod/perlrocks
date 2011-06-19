@@ -8,7 +8,7 @@ use Exporter::Lite;
 our @EXPORT = qw(metacpan_request);
 
 sub metacpan_request {
-    my ($path, $data) = @_;
+    my ($path, $data, $cb) = @_;
     my $response = HTTP::Tiny->new->request(
         "POST",
         "http://api.metacpan.org" . $path,
@@ -18,11 +18,9 @@ sub metacpan_request {
     );
 
     if ($response->{success}) {
-        my @hits = map {
-            $_->{fields}
-        } @{ from_json($response->{content})->{hits}{hits} };
-        return \@hits;
+        return $cb->(from_json($response->{content}));
     }
+
     die "Request failed.";
 }
 

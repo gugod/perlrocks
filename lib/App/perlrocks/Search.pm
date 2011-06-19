@@ -39,6 +39,9 @@ sub search_release_by_name {
             size   => 1000, # YYY: Something that's large enought to cover all...
             sort   => [ "_score", { date => 'desc' } ],
             fields => [qw(name distribution date author version status download_url)],
+        },
+        sub {
+            return [map { $_->{fields} } @{ $_[0]->{hits}{hits} }];
         }
     );
 
