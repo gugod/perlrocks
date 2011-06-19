@@ -9,19 +9,25 @@ our @EXPORT = qw(metacpan_request);
 
 sub metacpan_request {
     my ($path, $data, $cb) = @_;
+    if (ref($data) eq 'CODE') {
+        $cb = $data;
+        $data = undef;
+    }
+
     my $response = HTTP::Tiny->new->request(
         "POST",
         "http://api.metacpan.org" . $path,
         {
-            content => to_json($data)
+            content => defined($data) ? to_json($data) : ''
         }
     );
 
     if ($response->{success}) {
-        return $cb->(from_json($response->{content}));
+        my $data = from_json($response->{content});
+        return $cb ? $cb->($data) : $data;
     }
 
-    die "Request failed.";
+    die "Request failed: " . to_json($response);
 }
 
 
