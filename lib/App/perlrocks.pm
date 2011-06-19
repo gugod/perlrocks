@@ -4,7 +4,8 @@ use warnings;
 use parent qw(CLI::Framework);
 
 sub command_map {
-    search => 'App::perlrocks::Search';
+    search  => 'App::perlrocks::Search',
+    install => 'App::perlrocks::Install',
 }
 
 sub usage_text {
@@ -12,21 +13,14 @@ sub usage_text {
 
 Usage:
 
-    # Install the latest version Mouse
-    perlrocks install Mouse
-
-    # Install the specified version of Mouse
-    perlrocks install Moose-0.44
-
     perlrocks search Moose
-    #=> Moose (1.13, 1.14)
+    #=> Moose (1.14 1.13)
 
+    # Install the latest version Moose
     perlrocks install Moose
-    1. Moose 1.13
-    2. Moose 1.14
 
-    perlrocks install Moose-1.14
-
+    # Install the specified version of Moose
+    perlrocks install -v 1.14 Moose
 
 EOUSAGE
 }

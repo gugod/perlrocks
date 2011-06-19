@@ -4,49 +4,27 @@ use strict;
 use warnings;
 use utf8;
 use parent 'CLI::Framework::Command';
-use HTTP::Tiny;
-use JSON qw(from_json to_json);
+use App::perlrocks::Helpers;
 
 sub run {
     my ($self, $opts, @args) = @_;
     my ($name) = @args;
 
-    my $v = versions_of_dist($name);
+    my $v = search_release_by_name($name);
 
     my $ret = "";
     for (@$v) {
-        $ret .= $_->{distribution};
-        for (@{$_->{versions}}) {
-            $ret .= " $_->{version}";
-        }
-        $ret .= "\n";
+        $ret .= $_->{distribution} . " (";
+        $ret .= join " ", map { $_->{version} } @{$_->{versions}};
+        $ret .= ")\n";
     }
     return $ret;
 }
 
-sub http_request {
-    my ($path, $data) = @_;
-    my $response = HTTP::Tiny->new->request(
-        "POST",
-        "http://api.metacpan.org" . $path,
-        {
-            content => to_json($data)
-        }
-    );
-
-    if ($response->{success}) {
-        my @hits = map {
-            $_->{fields}
-        } @{ from_json($response->{content})->{hits}{hits} };
-        return \@hits;
-    }
-    die "Request failed.";
-}
-
-sub versions_of_dist {
+sub search_release_by_name {
     my ($dist_name) = @_;
 
-    my $versions = http_request(
+    my $versions = metacpan_request(
         '/release/_search', {
             query => {
                 query_string => {
