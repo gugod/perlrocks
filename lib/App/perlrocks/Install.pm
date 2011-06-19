@@ -27,7 +27,7 @@ sub run {
     }
 
     # The $dist_release->{name} should be formatted like Moose-2.100
-    my $install_base = File::Spec->catdir(perlrocks->rock_root, $dist_release->{name});
+    my $install_base = File::Spec->catdir(perlrocks->home, $dist_release->{name});
 
     print "Installing $dist_release->{name} to $install_base\n";
     install_cpan_dist_to_dir($dist_release->{download_url}, $install_base);

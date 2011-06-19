@@ -1,9 +1,8 @@
 package perlrocks;
-# ABSTRACT: CPAN installation management like rubygems.
 
 =head1 NAME
 
-perlrocks
+perlrocks - CPAN installation management
 
 =head1 VERSION
 
@@ -40,18 +39,19 @@ perlrocks does not work transparently, you have to modify your program a little 
 
 use strict;
 use warnings;
+
+our $VERSION = '0.01';
+
 use File::Find ();
-use File::Spec ();
+use File::Spec;
+use File::ShareDir qw(dist_dir);
 use B::Hooks::Parser;
 
 # The one, and only, rock.
 my $rock = bless {}, __PACKAGE__;
 
-sub rock_root() {
-    return $rock->{root} if $rock->{root};
-    my @x = File::Spec->splitpath(__FILE__);
-    pop @x;
-    return $rock->{root} = File::Spec->catpath(@x, 'rocks');
+sub home() {
+    return $rock->{home} ||= ($ENV{PERLROCKS_HOME} || dist_dir('perlrocks'));
 }
 
 sub parse_use_line($) {
@@ -120,6 +120,8 @@ sub search {
 sub perlrocks::INC {
     my ($self, $module_path) = @_;
     my $code = B::Hooks::Parser::get_linestr();
+    return unless $code;
+
     my ($name, $version, $auth) = parse_use_line($code);
 
     return unless $name;
@@ -133,12 +135,12 @@ sub perlrocks::INC {
     }
 }
 
-## It goes here when people says `use rock;`
+## It goes here when people says `use perlrock;`
 sub import {
-    my ($class, $root) = @_;;
+    my ($class, $perlrocks_home) = @_;;
     $rock->{__parser_hook} = B::Hooks::Parser::setup();
 
-    $rock->{root} = $root;
+    $rock->{home} = $perlrocks_home;
     unshift @INC, $rock;
 }
 
@@ -150,3 +152,44 @@ sub unimport {
 }
 
 1;
+
+=head1 AUTHOR
+
+Kang-min Liu  C<< <gugod@gugod.org> >>
+
+=head1 COPYRIGHT
+
+Copyright (c) 2011 Kang-min Liu C<< <gugod@gugod.org> >>.
+
+=head1 LICENCE
+
+The MIT License
+
+=head1 CONTRIBUTORS
+
+See L<https://github.com/gugod/perlrocks/contributors>
+
+=head1 DISCLAIMER OF WARRANTY
+
+BECAUSE THIS SOFTWARE IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY
+FOR THE SOFTWARE, TO THE EXTENT PERMITTED BY APPLICABLE LAW. EXCEPT WHEN
+OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES
+PROVIDE THE SOFTWARE "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER
+EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE
+ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE SOFTWARE IS WITH
+YOU. SHOULD THE SOFTWARE PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL
+NECESSARY SERVICING, REPAIR, OR CORRECTION.
+
+IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING
+WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR
+REDISTRIBUTE THE SOFTWARE AS PERMITTED BY THE ABOVE LICENCE, BE
+LIABLE TO YOU FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL,
+OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR INABILITY TO USE
+THE SOFTWARE (INCLUDING BUT NOT LIMITED TO LOSS OF DATA OR DATA BEING
+RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD PARTIES OR A
+FAILURE OF THE SOFTWARE TO OPERATE WITH ANY OTHER SOFTWARE), EVEN IF
+SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGES.
+
+=cut
