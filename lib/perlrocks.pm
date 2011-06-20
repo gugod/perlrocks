@@ -45,7 +45,15 @@ our $VERSION = '0.01';
 use File::Find ();
 use File::Spec;
 use File::ShareDir qw(dist_dir);
-use B::Hooks::Parser;
+
+my $PERLROCKS_WITH_B_HOOKS_PARSER = 0;
+BEGIN {
+    eval "require B::Hooks::Parser";
+    if (!$@) {
+        B::Hooks::Parser->import;
+        $PERLROCKS_WITH_B_HOOKS_PARSER = 1;
+    }
+}
 
 # The one, and only, rock.
 my $rock = bless {}, __PACKAGE__;
@@ -116,10 +124,30 @@ sub search {
     }
 }
 
+if ($PERLROCKS_WITH_B_HOOKS_PARSER) {
+    sub get_current_line {
+        B::Hooks::Parser::get_linestr();
+    }
+}
+else {
+    sub get_current_line {
+        my (undef, $file, $lineno) = caller(2);
+        open my $fh, "<", $file;
+        my $line;
+        my $i = 0;
+        while ($i < $lineno) {
+            $line = <$fh>;
+            $i++;
+        }
+        close($fh);
+        return $line;
+    }
+}
+
 ## It goes here when people says something like `use Foo;` or `use Foo-1.0;`
 sub perlrocks::INC {
     my ($self, $module_path) = @_;
-    my $code = B::Hooks::Parser::get_linestr();
+    my $code = get_current_line();
     return unless $code;
 
     my ($name, $version, $auth) = parse_use_line($code);
@@ -138,7 +166,9 @@ sub perlrocks::INC {
 ## It goes here when people says `use perlrock;`
 sub import {
     my ($class, $perlrocks_home) = @_;;
-    $rock->{__parser_hook} = B::Hooks::Parser::setup();
+    if ($PERLROCKS_WITH_B_HOOKS_PARSER) {
+        $rock->{__parser_hook} = B::Hooks::Parser::setup();
+    }
 
     $rock->{home} = $perlrocks_home;
     unshift @INC, $rock;
