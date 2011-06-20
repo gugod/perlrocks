@@ -47,12 +47,11 @@ use File::Spec;
 use File::ShareDir qw(dist_dir);
 
 my $PERLROCKS_WITH_B_HOOKS_PARSER = 0;
-BEGIN {
-    eval "require B::Hooks::Parser";
-    if (!$@) {
-        B::Hooks::Parser->import;
-        $PERLROCKS_WITH_B_HOOKS_PARSER = 1;
-    }
+
+eval "require B::Hooks::Parser";
+if (!$@) {
+    B::Hooks::Parser->import;
+    $PERLROCKS_WITH_B_HOOKS_PARSER = 1;
 }
 
 # The one, and only, rock.
@@ -125,14 +124,17 @@ sub search {
 }
 
 {
+    no strict 'refs';
     no warnings 'redefine';
+    sub get_current_line;
+
     if ($PERLROCKS_WITH_B_HOOKS_PARSER) {
-        sub get_current_line {
+        *{__PACKAGE__ . '::get_current_line'} = sub {
             B::Hooks::Parser::get_linestr();
         }
     }
     else {
-        sub get_current_line {
+        *{__PACKAGE__ . '::get_current_line'} = sub {
             my (undef, $file, $lineno) = caller(2);
             open my $fh, "<", $file;
             my $line;
