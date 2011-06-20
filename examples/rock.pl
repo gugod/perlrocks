@@ -1,4 +1,4 @@
-## perl -I../lib rock.pl
+#!/usr/bin/env perl
 
 package main;
 use strict;
@@ -6,15 +6,17 @@ use 5.010;
 
 use lib '../lib';
 
-# Specify the rocks root dir.
+# Specify the rocks home dir.
+# Which can also be set with PERLROCKS_HOME env var.
 use perlrocks qw(my-own-rocks);
 
 ## Foo.pm is stored under my-own-rocks/ dir.
 ## Try different version of Foo by uncommenting one of these lines.
-## There is no Foo-3.0 pm file, it'll just die in that case.
+## Foo-3.0 or Foo-1.5 pm files do not exists, it'll just die in those cases.
 ## Versioned `use` means exact match, version-less `use` means the highest version.
 use Foo;
 # use Foo-1.0;
+# use Foo-1.5;
 # use Foo-2.0;
 # use Foo-3.0;
 
