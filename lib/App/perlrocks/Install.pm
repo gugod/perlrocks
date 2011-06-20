@@ -11,19 +11,24 @@ use File::Temp qw(tempfile tempdir);
 require perlrocks;
 
 sub option_spec { (
-    [ 'version|v' => 'Specify the version of distribution to install.' ]
+    [ 'version|v=s' => 'Specify the version of distribution to install.' ]
 ) }
 
 sub run {
-    my ($self, $opts, @args) = @_;
-    my ($dist_name) = @args;
+    my ($self, $opts, $dist_name) = @_;
+
     my $dist_release;
     my $dist_version = $opts->{version};
 
     if (defined $dist_version) {
+        $dist_release = the_release_of_dist($dist_name, $dist_version);
     } else {
         $dist_release = the_latest_release_of_dist($dist_name);
         $dist_version = $dist_release->{version};
+    }
+
+    unless($dist_release->{download_url}) {
+        die "Failed to find $dist_name $dist_version\n";
     }
 
     # The $dist_release->{name} should be formatted like Moose-2.100
@@ -59,6 +64,24 @@ sub install_cpan_dist_to_dir {
 sub the_latest_release_of_dist {
     my ($dist_name) = @_;
     return metacpan_request("/release/" . $dist_name);
+}
+
+sub the_release_of_dist {
+    my ($name, $version) = @_;
+    return metacpan_request(
+        "/release/_search",
+        {
+            query => {
+                field => {
+                    "release.name" => "$name-$version"
+                }
+            }
+        },
+        sub {
+            my $data = shift;
+            $data->{hits}{hits}[0]{_source}
+        }
+    );
 }
 
 1;
