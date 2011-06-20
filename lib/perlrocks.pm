@@ -85,7 +85,7 @@ sub search {
         return unless (!$version || $version && $File::Find::name =~ /${name}-${version}\/lib/);
 
         push @candidates, $File::Find::name;
-    }, rock_root;
+    }, $self->home;
 
     if ($version) {
         my ($version_matched) = grep { $_ =~ /${name}-${version}/ } @candidates;
