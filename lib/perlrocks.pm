@@ -10,28 +10,59 @@ perlrocks - CPAN installation management
 
 =head1 SYNOPSIS
 
-A command 'rock' is installed:
+A command 'perlrocks' is installed to install cpan distributions:
 
-    > rock search Moose
+    > perlrocks search Moose
 
     # Install multiple vesion of Moose
-    > rock install Moose-1.14
-    > rock install Moose-1.13
+    > perlrocks install -v 2.0009 Moose
+    > perlrocks install -v 1.13 Moose
 
     # Uninstall is possible
     > rock uninstall Moose-1.14
 
+Modify your program a little bit to make it effective.
 
-perlrocks does not work transparently, you have to modify your program a little bit.
-
-    # Have to say this in the very beginning of your program.
+    # Put this in the very beginning of your program.
     use perlrocks;
 
     # Using the latest version of intsalled Moose
     use Moose;
 
-    # Using a specific version of Moose.
-    use Moose-1.13;
+    # Using exactly the version 2.0008 of Moose.
+    use Moose-2.0008
+
+=head1 DESCRIPTION
+
+This `perlrocks` things provides a mechanism to install multiple
+versions of CPAN distributions, and use specific one in programs.
+
+In Perl5, the statement C<use Foo 1.0> or C<use Foo-1.0> means to load
+Foo.pm and check if C<$Foo::VERSION> is at least 1.0. perlrocks alters
+that behavior to load exactly Foo 1.0. If only higher versions of Foo
+are found, it dies.
+
+In order to do that, `perlrocks` makes perl search libs in a different
+way. Therefore, you need to install CPAN distributions differently.
+To do so, you must use the C<perlrocks> command:
+
+    perlrocks install -v 2.0008 Moose
+    perlrocks install -v 2.0009 Moose
+
+Also notice here in the document, the term "distribution" is used to
+refer to "the thing that gets uploaded to CPAN". Not "module", not
+"package". For example, To install MooseX::Struct module, you'll need
+to figure out the distribution name that provides it, in this case
+it's "MooseX-Struct":
+
+    perlrocks install MooseX-Struct
+
+Since one CPAN distribution can contain as many modules as needed, each
+with different versions, it is ambiguous to state the command to install
+"Foo::Bar" module, with the version number refering to the "Foo" distribution.
+
+Be aware of that C<perlrocks.pm> tweaks your C<%INC>, and it maybe
+significantly slower. Use it at your own risk.
 
 =head1 METHODS
 
@@ -188,6 +219,10 @@ sub unimport {
 
 1;
 
+=head1 SEE ALSO
+
+L<only>, L<http://rubygems.org>
+
 =head1 AUTHOR
 
 Kang-min Liu  C<< <gugod@gugod.org> >>
@@ -198,7 +233,7 @@ Copyright (c) 2011 Kang-min Liu C<< <gugod@gugod.org> >>.
 
 =head1 LICENCE
 
-The MIT License
+CC0 L<http://creativecommons.org/publicdomain/zero/1.0/>
 
 =head1 CONTRIBUTORS
 
