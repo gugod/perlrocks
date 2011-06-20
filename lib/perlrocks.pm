@@ -124,23 +124,26 @@ sub search {
     }
 }
 
-if ($PERLROCKS_WITH_B_HOOKS_PARSER) {
-    sub get_current_line {
-        B::Hooks::Parser::get_linestr();
-    }
-}
-else {
-    sub get_current_line {
-        my (undef, $file, $lineno) = caller(2);
-        open my $fh, "<", $file;
-        my $line;
-        my $i = 0;
-        while ($i < $lineno) {
-            $line = <$fh>;
-            $i++;
+{
+    no warnings 'redefine';
+    if ($PERLROCKS_WITH_B_HOOKS_PARSER) {
+        sub get_current_line {
+            B::Hooks::Parser::get_linestr();
         }
-        close($fh);
-        return $line;
+    }
+    else {
+        sub get_current_line {
+            my (undef, $file, $lineno) = caller(2);
+            open my $fh, "<", $file;
+            my $line;
+            my $i = 0;
+            while ($i < $lineno) {
+                $line = <$fh>;
+                $i++;
+            }
+            close($fh);
+            return $line;
+        }
     }
 }
 
