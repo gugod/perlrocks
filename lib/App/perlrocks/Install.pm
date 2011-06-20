@@ -5,7 +5,6 @@ use warnings;
 use utf8;
 use parent 'CLI::Framework::Command';
 use App::perlrocks::Helpers;
-use YAML;
 use File::Temp qw(tempfile tempdir);
 
 require perlrocks;
