@@ -1,0 +1,108 @@
+
+# Begin standard Module::Manifest::Skip list:
+
+# ExtUtils::MakeMaker
+^blib/
+^blibdirs$
+^blibdirs\.ts$
+^bpm_to_blib\.ts$
+^Makefile$
+^Makefile\.old$
+^MakeMaker-\d
+^MANIFEST\.bak$
+^MANIFEST\.SKIP$
+^MYMETA\.
+^pm_to_blib$
+^pod2htm.*
+
+# Module::Build
+^Build$
+^_build/
+^Build.bat$
+^Build.COM$
+^BUILD.COM$
+^build.com$
+
+# Revision Control
+\bCVS\b
+\b.cvsignore\b
+\b_darcs\b
+\B\.git\b
+\B\.gitignore\b
+\B\.gitmodules\b
+\B\.hg\b
+\B\.hgignore\b
+\B\.hgtags\b
+\bRCS\b
+\bSCCS\b
+\B\.svn\b
+,v$
+,B$
+,D$
+\baegis.log$
+
+# Author Extras
+^inc/.*\.pod$
+^pkg/
+^xt/
+^dist.ini$
+
+# Editors
+~$
+\#$
+\b\.#
+\.kpf$
+\.sw[pmno]$
+^\.vimrc$
+
+# OS X
+^\.DS_Store$
+^\.Trash/
+\B\._
+
+# VMS
+\bDescrip.MMS$
+\bDESCRIP.MMS$
+\bdescrip.mms$
+
+# Development
+^benchmarks/
+^core$
+^cover_db\b
+^covered\b
+^debian/
+^devel\.
+^.devel-local$
+^out$
+^tmon.out$
+
+# Author Notes
+^notes
+^todo
+^ToDo$
+
+# Common Junk Files
+\.bak$
+\.diff$
+^foo\b.*
+\.old$
+\.orig$
+\.patch$
+\.rej$
+\.tdy$
+\.tmp$
+^\w$
+\.ttc$
+\.pmc$
+^pkg/
+^inc/.*\.pod
+^inc/Module/Install/AckXXX.pm$
+^inc/Module/Install/AuthorRequires.pm$
+^inc/Module/Install/AutoLicense.pm$
+^inc/Module/Install/ManifestSkip.pm$
+^inc/Module/Install/ReadmeFromPod.pm$
+^inc/Module/Install/ReadmeMarkdownFromPod.pm$
+^inc/Module/Install/Repository.pm$
+^inc/Module/Install/RequiresList.pm$
+^inc/Module/Install/TestBase.pm$
+^inc/Module/Install/VersionCheck.pm$

@@ -1,0 +1,108 @@
+# NAME
+
+perlrocks - CPAN installation management
+
+# VERSION
+
+0.01
+
+# SYNOPSIS
+
+A command 'perlrocks' is installed to install cpan distributions:
+
+    > perlrocks search Moose
+
+    # Install multiple vesion of Moose
+    > perlrocks install -v 2.0009 Moose
+    > perlrocks install -v 1.13 Moose
+
+    # Uninstall is possible
+    > rock uninstall Moose-1.14
+
+Modify your program a little bit to make it effective.
+
+    # Put this in the very beginning of your program.
+    use perlrocks;
+
+    # Using the latest version of intsalled Moose
+    use Moose;
+
+    # Using exactly the version 2.0008 of Moose.
+    use Moose-2.0008
+
+# DESCRIPTION
+
+This `perlrocks` things provides a mechanism to install multiple
+versions of CPAN distributions, and use specific one in programs.
+
+In Perl5, the statement `use Foo 1.0` or `use Foo-1.0` means to load
+Foo.pm and check if `$Foo::VERSION` is at least 1.0. perlrocks alters
+that behavior to load exactly Foo 1.0. If only higher versions of Foo
+are found, it dies.
+
+In order to do that, `perlrocks` makes perl search libs in a different
+way. Therefore, you need to install CPAN distributions differently.
+To do so, you must use the `perlrocks` command:
+
+    perlrocks install -v 2.0008 Moose
+    perlrocks install -v 2.0009 Moose
+
+Also notice here in the document, the term "distribution" is used to
+refer to "the thing that gets uploaded to CPAN". Not "module", not
+"package". For example, To install MooseX::Struct module, you'll need
+to figure out the distribution name that provides it, in this case
+it's "MooseX-Struct":
+
+    perlrocks install MooseX-Struct
+
+Since one CPAN distribution can contain as many modules as needed, each
+with different versions, it is ambiguous to state the command to install
+"Foo::Bar" module, with the version number refering to the "Foo" distribution.
+
+Be aware of that `perlrocks.pm` tweaks your `%INC`, and it maybe
+significantly slower. Use it at your own risk.
+
+# METHODS
+
+# SEE ALSO
+
+[only](http://search.cpan.org/perldoc?only), [http://rubygems.org](http://rubygems.org)
+
+# AUTHOR
+
+Kang-min Liu  `<gugod@gugod.org>`
+
+# COPYRIGHT
+
+Copyright (c) 2011 Kang-min Liu `<gugod@gugod.org>`.
+
+# LICENCE
+
+CC0 [http://creativecommons.org/publicdomain/zero/1.0/](http://creativecommons.org/publicdomain/zero/1.0/)
+
+# CONTRIBUTORS
+
+See [https://github.com/gugod/perlrocks/contributors](https://github.com/gugod/perlrocks/contributors)
+
+# DISCLAIMER OF WARRANTY
+
+BECAUSE THIS SOFTWARE IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY
+FOR THE SOFTWARE, TO THE EXTENT PERMITTED BY APPLICABLE LAW. EXCEPT WHEN
+OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES
+PROVIDE THE SOFTWARE "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER
+EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE
+ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE SOFTWARE IS WITH
+YOU. SHOULD THE SOFTWARE PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL
+NECESSARY SERVICING, REPAIR, OR CORRECTION.
+
+IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING
+WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR
+REDISTRIBUTE THE SOFTWARE AS PERMITTED BY THE ABOVE LICENCE, BE
+LIABLE TO YOU FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL,
+OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR INABILITY TO USE
+THE SOFTWARE (INCLUDING BUT NOT LIMITED TO LOSS OF DATA OR DATA BEING
+RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD PARTIES OR A
+FAILURE OF THE SOFTWARE TO OPERATE WITH ANY OTHER SOFTWARE), EVEN IF
+SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGES.
