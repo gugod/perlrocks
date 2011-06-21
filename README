@@ -2,7 +2,7 @@ NAME
     perlrocks - CPAN installation management
 
 VERSION
-    0.01
+    0.02
 
 SYNOPSIS
     A command 'perlrocks' is installed to install cpan distributions:

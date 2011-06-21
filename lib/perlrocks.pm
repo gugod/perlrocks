@@ -1,4 +1,7 @@
 package perlrocks;
+use strict;
+use warnings;
+our $VERSION = '0.02';
 
 =head1 NAME
 
@@ -6,7 +9,7 @@ perlrocks - CPAN installation management
 
 =head1 VERSION
 
-0.01
+0.02
 
 =head1 SYNOPSIS
 
@@ -68,11 +71,6 @@ significantly slower. Use it at your own risk.
 
 =cut
 
-use strict;
-use warnings;
-
-our $VERSION = '0.01';
-
 use File::Find ();
 use File::Spec;
 use File::ShareDir qw(dist_dir);
@@ -121,37 +119,39 @@ sub search {
     File::Find::find sub {
         return unless $_ eq $file;
         return unless (!$version || $version && $File::Find::name =~ /${name}-${version}\/lib/);
-
         push @candidates, $File::Find::name;
     }, $self->home;
 
+    return unless @candidates;
+
     if ($version) {
-        my ($version_matched) = grep { $_ =~ /${name}-${version}/ } @candidates;
-        if ($version_matched) {
-            return $version_matched;
+        my $version_matched;
+        for (@candidates) {
+            if (/\Q${name}-${version}\E\/lib/) {
+                return $_;
+            }
         }
 
-        die "ERROR: ${name}-${version} not found in the rocks\n";
+        die "ERROR: ${name}-${version} not found.\n";
     }
-    else {
-        ## A version-less `use` statement.
-        ## Pick the highest versioned from candidates.
 
-        @candidates = map {
-            $_->[0]
-        } sort {
-            $b->[1] <=> $a->[1];
-        } map {
-            my $v = 0;
-            if (/$name-([0-9\.]+)\/lib\/$name/) {
-                $v = $1;
-            }
+    ## A version-less `use` statement.
+    ## Pick the highest versioned from candidates.
 
-            [$_, $v];
-        } @candidates;
+    @candidates = map {
+        $_->[0]
+    } sort {
+        $b->[1] <=> $a->[1];
+    } map {
+        my $v = 0;
+        if (/$name-([0-9\.]+)\/lib\//) {
+            $v = $1;
+        }
 
-        return $candidates[0];
-    }
+        [$_, $v];
+    } @candidates;
+
+    return $candidates[0];
 }
 
 {
@@ -187,12 +187,9 @@ sub perlrocks::INC {
     return unless $code;
 
     my ($name, $version, $auth) = parse_use_line($code);
-
     return unless $name;
 
-    my $path = $self->search($module_path, $name, $version, $auth);
-
-    if ($path) {
+    if (my $path = $self->search($module_path, $name, $version, $auth)) {
         open my $fh, $path or die "Can't open $path for input\n";
         $INC{$module_path} = $path;
         return $fh;

@@ -14,8 +14,8 @@ use perlrocks qw(my-own-rocks);
 ## Try different version of Foo by uncommenting one of these lines.
 ## Foo-3.0 or Foo-1.5 pm files do not exists, it'll just die in those cases.
 ## Versioned `use` means exact match, version-less `use` means the highest version.
-use Foo;
-# use Foo-1.0;
+# use Foo;
+use Foo-1.0;
 # use Foo-1.5;
 # use Foo-2.0;
 # use Foo-3.0;
