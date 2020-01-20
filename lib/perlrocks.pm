@@ -17,12 +17,12 @@ A command 'perlrocks' is installed to install cpan distributions:
 
     > perlrocks search Moose
 
-    # Install multiple vesion of Moose
+    # Install multiple vesions of Moose
     > perlrocks install -v 2.0009 Moose
     > perlrocks install -v 1.13 Moose
 
-    # Uninstall is possible
-    > rock uninstall Moose-1.14
+    # Uninstall the one version.
+    > perlrocks uninstall Moose-1.14
 
 Modify your program a little bit to make it effective.
 
