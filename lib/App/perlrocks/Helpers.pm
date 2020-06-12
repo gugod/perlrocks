@@ -16,7 +16,7 @@ sub metacpan_request {
 
     my $response = HTTP::Tiny->new->request(
         "POST",
-        "http://api.metacpan.org" . $path,
+        "http://fastapi.metacpan.org" . $path,
         {
             content => defined($data) ? to_json($data) : ''
         }

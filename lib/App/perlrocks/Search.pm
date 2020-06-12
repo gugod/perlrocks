@@ -5,6 +5,7 @@ use warnings;
 use utf8;
 use parent 'CLI::Framework::Command';
 use App::perlrocks::Helpers;
+use URI::Escape;
 
 sub run {
     my ($self, $opts, @args) = @_;
@@ -25,7 +26,7 @@ sub search_release_by_name {
     my ($dist_name) = @_;
 
     my $versions = metacpan_request(
-        '/release/_search', {
+        '/v1/release/_search', {
             query => {
                 query_string => {
                     fields => [
@@ -33,7 +34,7 @@ sub search_release_by_name {
                         'distribution.analyzed',
                         'name.analyzed',
                     ],
-                    query => $dist_name
+                    query => uri_escape($dist_name)
                 }
             },
             size   => 1000, # YYY: Something that's large enought to cover all...

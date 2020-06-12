@@ -6,6 +6,7 @@ use utf8;
 use parent 'CLI::Framework::Command';
 use App::perlrocks::Helpers;
 use File::Temp qw(tempfile tempdir);
+use URI::Escape;
 
 require perlrocks;
 
@@ -62,17 +63,17 @@ sub install_cpan_dist_to_dir {
 
 sub the_latest_release_of_dist {
     my ($dist_name) = @_;
-    return metacpan_request("/release/" . $dist_name);
+    return metacpan_request("/v1/release/" . uri_escape($dist_name));
 }
 
 sub the_release_of_dist {
     my ($name, $version) = @_;
     return metacpan_request(
-        "/release/_search",
+        "/v1/release/_search",
         {
-            query => {
-                field => {
-                    "release.name" => "$name-$version"
+            filter => {
+                term => {
+                    "name" => uri_escape("$name-$version")
                 }
             }
         },
