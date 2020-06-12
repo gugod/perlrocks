@@ -2,7 +2,7 @@ NAME
     perlrocks - CPAN installation management
 
 VERSION
-    0.02
+    0.03
 
 SYNOPSIS
     A command 'perlrocks' is installed to install cpan distributions:
@@ -12,9 +12,6 @@ SYNOPSIS
         # Install multiple vesion of Moose
         > perlrocks install -v 2.0009 Moose
         > perlrocks install -v 1.13 Moose
-
-        # Uninstall is possible
-        > rock uninstall Moose-1.14
 
     Modify your program a little bit to make it effective.
 

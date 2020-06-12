@@ -1,7 +1,7 @@
 package perlrocks;
 use strict;
 use warnings;
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 =head1 NAME
 
@@ -9,7 +9,7 @@ perlrocks - CPAN installation management
 
 =head1 VERSION
 
-0.02
+0.03
 
 =head1 SYNOPSIS
 
@@ -20,9 +20,6 @@ A command 'perlrocks' is installed to install cpan distributions:
     # Install multiple vesions of Moose
     > perlrocks install -v 2.0009 Moose
     > perlrocks install -v 1.13 Moose
-
-    # Uninstall the one version.
-    > perlrocks uninstall Moose-1.14
 
 Modify your program a little bit to make it effective.
 
